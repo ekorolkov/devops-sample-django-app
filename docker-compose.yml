@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres
+    volumes:
+      - ~/data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=app
+      - POSTGRES_USER=worker
+      - POSTGRES_PASSWORD=worker
+  migrate:
+    build: .
+    command: python3 manage.py migrate
+    environment:
+      - DJANGO_DB_HOST=db
+      - DJANGO_DB_NAME=app
+      - DJANGO_DB_USER=worker
+      - DJANGO_DB_PASS=worker
+      - DJANGO_DB_PORT=5432
+      - DJANGO_DEBUG=False
+    depends_on:
+      - db
+  app:
+    build: .
+    command: python3 manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_DB_HOST=db
+      - DJANGO_DB_NAME=app
+      - DJANGO_DB_USER=worker
+      - DJANGO_DB_PASS=worker
+      - DJANGO_DB_PORT=5432
+      - DJANGO_DEBUG=False
+    depends_on:
+      - migrate
