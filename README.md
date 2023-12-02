@@ -49,3 +49,28 @@ python3 manage.py migrate
 ```shell
 python3 manage.py runserver 0.0.0.0:8000
 ```
+
+<h3>Запуск контейнера Docker</h3>
+
+____
+
+* Установить Docker
+* Сделать git clone репозитория
+```shell
+git clone https://github.com/ekorolkov/devops-sample-django-app
+```
+  
+* Перейти в папку приложения
+```shell
+cd devops-sample-django-app/
+```
+
+* Создать образы
+```shell
+docker-compose build
+```
+
+* Запустить приложение
+```shell
+docker-compose up
+```
