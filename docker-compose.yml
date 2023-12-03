@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres
+    restart: always
     volumes:
       - ~/data/db:/var/lib/postgresql/data
     environment:
@@ -8,34 +9,21 @@ services:
       - POSTGRES_USER=worker
       - POSTGRES_PASSWORD=worker
     healthcheck:
-        test: ["CMD-SHELL", "pg_isready"]
+        test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
         interval: 10s
-        timeout: 5s
-        retries: 5
+        timeout: 3s
+        retries: 3
   migrate:
     build: .
     command: python3 manage.py migrate
-    environment:
-      - DJANGO_DB_HOST=db
-      - DJANGO_DB_NAME=app
-      - DJANGO_DB_USER=worker
-      - DJANGO_DB_PASS=worker
-      - DJANGO_DB_PORT=5432
-      - DJANGO_DEBUG=False
     depends_on:
       db:
         condition: service_healthy
   app:
     build: .
     command: python3 manage.py runserver 0.0.0.0:8000
+    restart: always
     ports:
       - "8000:8000"
-    environment:
-      - DJANGO_DB_HOST=db
-      - DJANGO_DB_NAME=app
-      - DJANGO_DB_USER=worker
-      - DJANGO_DB_PASS=worker
-      - DJANGO_DB_PORT=5432
-      - DJANGO_DEBUG=False
     depends_on:
       - migrate
